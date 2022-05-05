@@ -12,7 +12,7 @@ void *sommaWorker(void *args)
   dataWork *a = (dataWork *) args;
   char *nomeFile;
   long somma, num;
-  int i;
+  int i, e;
   while(true)
   {
     xsem_wait(a->sem_dati_presenti, QUI);
@@ -30,7 +30,7 @@ void *sommaWorker(void *args)
     int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria
     if(f == -1) termina("Errore apertura file thread");
     while(true){
-      int e = read(f, &num, sizeof(long));
+      e = read(f, &num, sizeof(long));
       fprintf(stderr, "valore di e: %d\n",e);
       fprintf(stderr, "valore di num: %ld\n",num);
       if(e <= 0) break;
@@ -38,7 +38,8 @@ void *sommaWorker(void *args)
       somma += (i*num);
       i++;
     }
-    close(f);
+    e = close(f);
+    if(e != 0) termina("Errore chiusura fd");
     fprintf(stderr,"Somma: %ld\n", somma);
   }
   pthread_exit(NULL);
@@ -102,11 +103,9 @@ int main(int argc, char *argv[])
   serv_addr.sin_port = htons(PORT); // Numero porta scritto in network byte order (big-endian)
   serv_addr.sin_addr.s_addr = inet_addr(HOST);  // Indirizzo ipv4
 
-  /*
   // apertura connessione
   if (connect(fd_skt, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
     termina("Errore apertura connessione");
-  */
 
   /* Inizializzazioni thread Worker*/
   int cindex = 0;   // Indice consumatore (worker) per buffer
