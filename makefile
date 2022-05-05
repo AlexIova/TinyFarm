@@ -13,7 +13,7 @@ MAIN=farm
 all: $(MAIN)
 
 # come compilare main
-$(MAIN): $(MAIN).o libreria.o
+$(MAIN): $(MAIN).o librerie.o
 
 clean:
 	rm -f $(MAIN) *.o  
