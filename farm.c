@@ -18,6 +18,11 @@ void *somma(void *args)
 
 int main(int argc, char *argv[])
 {
+
+  if(argc<2) {
+    chiudi("Uso: \n  farm [file ...] [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
+  }
+
   /* Controllo argomenti con getopt(3) */
   int nthread = 4;
   int qlen = 8;
@@ -46,7 +51,7 @@ int main(int argc, char *argv[])
           delay = atoi(optarg);
         break;
       default:
-        chiudi("Uso: \n  farm [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
+        chiudi("Uso: \n  farm [file ...] [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
     }
   }
 	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
