@@ -40,8 +40,8 @@ typedef struct {
 void chiudi(const char *messaggio);
 ssize_t readn(int fd, void *ptr, size_t n);
 ssize_t writen(int fd, void *ptr, size_t n);
-int xsem_init(sem_t *sem, int pshared, unsigned int value, int linea, char *file);
-
+ssize_t socketWritenLong(int fd_skt, long n);
+ssize_t socketReadnLong(int fd_skt, long n);
 
 
 /******* Presi da xerrori *******/
@@ -78,9 +78,7 @@ int xsem_wait(sem_t *sem, int linea, char *file);
 
 // thread
 void xperror(int en, char *msg);
-
-int xpthread_create(pthread_t *thread, const pthread_attr_t *attr,
-                          void *(*start_routine) (void *), void *arg, int linea, char *file);
+int xpthread_create(pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg, int linea, char *file);
 int xpthread_join(pthread_t thread, void **retval, int linea, char *file);
 
 // mutex 

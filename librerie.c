@@ -42,7 +42,23 @@ ssize_t writen(int fd, void *ptr, size_t n)
    return(n - nleft); /* return >= 0 */
 }
 
-/******* Presi da xerrori *******/
+ssize_t socketWritenLong(int fd_skt, long n)
+{
+    long tmp = htonl(n);
+    ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
+    if(e != sizeof(long)) termina ("Errore socketWritenLong");
+    return e;
+}
+
+ssize_t socketReadnLong(int fd_skt, long n)
+{
+    long tmp = htonl(n);
+    ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
+    if(e != sizeof(long)) termina ("Errore socketWritenLong");
+    return e;
+}
+
+/**************************** Presi da xerrori ****************************/
 void termina(const char *messaggio) {
   if(errno==0)  fprintf(stderr,"== %d == %s\n",getpid(), messaggio);
   else fprintf(stderr,"== %d == %s: %s\n",getpid(), messaggio,
