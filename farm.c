@@ -7,7 +7,7 @@
 
 
 
-void *somma(void *args)
+void *sommaWorker(void *args)
 {
   pthread_exit(NULL);
 }
@@ -96,9 +96,29 @@ int main(int argc, char *argv[])
 
   pthread_t w[nthread];
   for(int i = 0; i < nthread; i++){
-    xpthread_create(&w[i], NULL, somma, &dw, QUI);
+    xpthread_create(&w[i], NULL, sommaWorker, &dw, QUI);
   }
 
+  /* inserimento in buffer */
+  for(int i = optind; i<argc; i++){
+    xsem_wait(&sem_posti_liberi, QUI);
+    xpthread_mutex_lock(&tmutex, QUI);
+    buffer[pindex++ % qlen] = argv[i];
+    xpthread_mutex_unlock(&tmutex, QUI);
+    xsem_post(&sem_dati_presenti, QUI);
+  }
+
+  /* terminazione */
+  for(int i = 0; i < nthread; i++)
+  {
+    xsem_wait(&sem_posti_liberi, QUI);
+    xpthread_mutex_lock(&tmutex, QUI);
+    buffer[pindex++ % qlen] = "$$$";
+    xpthread_mutex_unlock(&tmutex, QUI);
+    xsem_post(&sem_dati_presenti, QUI);
+  }
+
+  /* join */
   for(int i = 0; i < nthread; i++){
       xpthread_join(w[i], NULL, QUI);
   }
@@ -106,5 +126,7 @@ int main(int argc, char *argv[])
   /* Chiusure e deallocazioni */
   if(close(fd_skt)<0)   // Chiusura socket
     termina("Errore chiusura socket");
+
+  free(buffer);
 	return 0;
 }
