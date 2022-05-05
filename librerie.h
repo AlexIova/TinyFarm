@@ -17,3 +17,5 @@
 #include <fcntl.h>           /* For O_* constants */
 
 
+void termina(const char *messaggio);
+void chiudi(const char *messaggio);
