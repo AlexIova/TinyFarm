@@ -28,6 +28,7 @@ typedef struct {
     sem_t *sem_dati_presenti;
     pthread_mutex_t *tmutex;
     int *cindex;
+    int qlen;
 
 } dataWork;
 

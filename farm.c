@@ -9,6 +9,38 @@
 
 void *sommaWorker(void *args)
 {
+  dataWork *a = (dataWork *) args;
+  char *nomeFile;
+  long somma, num;
+  int i;
+  while(true)
+  {
+    xsem_wait(a->sem_dati_presenti, QUI);
+    xpthread_mutex_lock(a->tmutex, QUI);
+    nomeFile = a->buffer[*(a->cindex) % a->qlen];
+    *(a->cindex) += 1;
+    xpthread_mutex_unlock(a->tmutex, QUI);
+    xsem_post(a->sem_posti_liberi, QUI);
+
+    fprintf(stderr, "Nomefile: %s\n", nomeFile);
+
+    if(strcmp(nomeFile, "$$$") == 0) break;
+
+    somma = 0, i = 0;
+    FILE *f = fopen(nomeFile, "r");
+    if(f == NULL) termina("Errore apertura file thread");
+    while(true){
+      int e = fscanf(f, "%ld", &num);
+      fprintf(stderr, "valore di e: %d\n",e);
+      fprintf(stderr, "valore di num: %ld\n",num);
+      if(e != 1) break;
+      fprintf(stderr, "fammi uscire\n");
+      somma += (i*num);
+      i++;
+    }
+    fclose(f);
+    fprintf(stderr,"Somma: %ld\n", somma);
+  }
   pthread_exit(NULL);
 }
 
@@ -70,10 +102,11 @@ int main(int argc, char *argv[])
   serv_addr.sin_port = htons(PORT); // Numero porta scritto in network byte order (big-endian)
   serv_addr.sin_addr.s_addr = inet_addr(HOST);  // Indirizzo ipv4
 
+  /*
   // apertura connessione
   if (connect(fd_skt, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
     termina("Errore apertura connessione");
-  
+  */
 
   /* Inizializzazioni thread Worker*/
   int cindex = 0;   // Indice consumatore (worker) per buffer
@@ -93,8 +126,9 @@ int main(int argc, char *argv[])
   dw.sem_dati_presenti = &sem_dati_presenti;
   dw.tmutex = &tmutex;
   dw.cindex = &cindex;
+  dw.qlen = qlen;
 
-  pthread_t w[nthread];
+  pthread_t w[nthread-1];
   for(int i = 0; i < nthread; i++){
     xpthread_create(&w[i], NULL, sommaWorker, &dw, QUI);
   }
