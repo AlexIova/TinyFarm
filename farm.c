@@ -27,18 +27,18 @@ void *sommaWorker(void *args)
     if(strcmp(nomeFile, "$$$") == 0) break;
 
     somma = 0, i = 0;
-    FILE *f = fopen(nomeFile, "r");
-    if(f == NULL) termina("Errore apertura file thread");
+    int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria
+    if(f == -1) termina("Errore apertura file thread");
     while(true){
-      int e = fscanf(f, "%ld", &num);
+      int e = read(f, &num, sizeof(long));
       fprintf(stderr, "valore di e: %d\n",e);
       fprintf(stderr, "valore di num: %ld\n",num);
-      if(e != 1) break;
+      if(e <= 0) break;
       fprintf(stderr, "fammi uscire\n");
       somma += (i*num);
       i++;
     }
-    fclose(f);
+    close(f);
     fprintf(stderr,"Somma: %ld\n", somma);
   }
   pthread_exit(NULL);
