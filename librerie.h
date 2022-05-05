@@ -15,7 +15,12 @@
 #include <sys/mman.h>
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>           /* For O_* constants */
+/* socket*/
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 
 void termina(const char *messaggio);
 void chiudi(const char *messaggio);
+ssize_t readn(int fd, void *ptr, size_t n);
+ssize_t writen(int fd, void *ptr, size_t n);
