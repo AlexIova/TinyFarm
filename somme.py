@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 # calcola la chesum i*a[i] per i file
-# di long passati sullalinea di comando
+# di long passati sulla linea di comando
 
 import sys, struct, argparse 
 
