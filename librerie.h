@@ -19,6 +19,15 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+/* Struct thread Worker */
+typedef struct {
+    ;
+} dataWork;
+
+/* Struct thread Segnali */
+typedef struct {
+    ;
+} dataSig;
 
 void termina(const char *messaggio);
 void chiudi(const char *messaggio);
