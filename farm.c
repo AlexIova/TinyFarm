@@ -1,11 +1,24 @@
 #include "librerie.h"
 
+#define QUI __LINE__, __FILE__
 #define HOST "127.0.0.1"  // indirizzo loopback
 #define PORT 65432        // porta casuale
 
+
+
+
+void *somma(void *args)
+{
+  pthread_exit(NULL);
+}
+
+
+
+
+
 int main(int argc, char *argv[])
 {
-  /* controllo argomenti con getopt(3)*/
+  /* Controllo argomenti con getopt(3) */
   int nthread = 4;
   int qlen = 8;
   int delay = 0;
@@ -39,13 +52,12 @@ int main(int argc, char *argv[])
 	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
 
 
-
-  /* Creazione socket connessione*/
+  /* Creazione socket connessione */
   int fd_skt = 0;
   struct sockaddr_in serv_addr;
   
   // Inizializzazione socket TCP
-  if ((fd_skt = socket(AF_INET, SOCK_STREAM, 6)) < 0) // 6 è il numero di protocollo per TCP https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+  if ((fd_skt = socket(AF_INET, SOCK_STREAM, 6)) < 0) // 6 è il numero di protocollo per TCP
     termina("Errore creazione socket");
 
   // Assegnamento indirizzo 
@@ -56,11 +68,37 @@ int main(int argc, char *argv[])
   // apertura connessione
   if (connect(fd_skt, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
     termina("Errore apertura connessione");
-    
-  /* Fine socket connessione */
+  
 
+  /* Inizializzazioni thread Worker*/
+  int cindex = 0;   // Indice consumatore (worker) per buffer
+  int pindex = 0;   // Indice produttore (master) per buffer
 
-  /* chiusure e deallocazioni */
+  char **buffer = malloc(sizeof(char*)*qlen);
+
+  pthread_mutex_t tmutex = PTHREAD_MUTEX_INITIALIZER;
+
+  sem_t sem_posti_liberi, sem_dati_presenti;
+  xsem_init(&sem_posti_liberi,  0,     qlen, QUI);
+  xsem_init(&sem_dati_presenti, 0,        0, QUI);
+
+  dataWork dw;
+  dw.buffer = buffer;
+  dw.sem_posti_liberi = &sem_posti_liberi;
+  dw.sem_dati_presenti = &sem_dati_presenti;
+  dw.tmutex = &tmutex;
+  dw.cindex = &cindex;
+
+  pthread_t w[nthread];
+  for(int i = 0; i < nthread; i++){
+    xpthread_create(&w[i], NULL, somma, &dw, QUI);
+  }
+
+  for(int i = 0; i < nthread; i++){
+      xpthread_join(w[i], NULL, QUI);
+  }
+
+  /* Chiusure e deallocazioni */
   if(close(fd_skt)<0)   // Chiusura socket
     termina("Errore chiusura socket");
 	return 0;
