@@ -36,7 +36,7 @@ def stampaSomme(conn, addr):
         # print(f"{data}")
         somma = struct.unpack("!q", data[-8:])[0]
         # print(f"Somma {somma}")
-
+        print(f"{somma}\t{nomeFile}")
 
 
 
@@ -47,7 +47,7 @@ class ClientThread(threading.Thread):
         self.conn = conn
         self.addr = addr
     def run(self):
-        print(f"Sono {self.ident}, gestisco {self.addr}")
+        # print(f"Sono {self.ident}, gestisco {self.addr}")
         stampaSomme(self.conn, self.addr)
         
 
@@ -59,9 +59,9 @@ def main():
             s.bind((HOST, PORT))
             s.listen()
             while True:
-                print("In attesa di un client...")
+                # print("In attesa di un client...")
                 conn, addr = s.accept()
-                print(f"Apparso un client\nconn: {conn}\taddr: {addr}")
+                # print(f"Apparso un client\nconn: {conn}\taddr: {addr}")
                 t = threading.Thread(target=stampaSomme, args=(conn,addr))
                 t = ClientThread(conn,addr)
                 t.start()

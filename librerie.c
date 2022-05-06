@@ -65,8 +65,6 @@ ssize_t socketWritenLong(int fd_skt, long n)
     //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
     long tmp = hRltonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
-    printf("Ho mandato: %ld\n", n);
-    printf("byte: %ld\n", tmp);
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
     return e;
 }
