@@ -62,7 +62,7 @@ ssize_t socketWritenInt(int fd_skt, int n)
 {
     long tmp = htonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
-    if(e != sizeof(long)) termina ("Errore socketWritenLong");
+    if(e != sizeof(int)) termina ("Errore socketWritenLong");
     return e;
 }
 
@@ -70,7 +70,7 @@ ssize_t socketReadnInt(int fd_skt, int n)
 {
     long tmp = htonl(n);
     ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
-    if(e != sizeof(long)) termina ("Errore socketWritenLong");
+    if(e != sizeof(int)) termina ("Errore socketWritenLong");
     return e;
 }
 
