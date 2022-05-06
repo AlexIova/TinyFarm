@@ -134,6 +134,14 @@ int beginSocketConnection(char* host, int port)
   return fd_skt;
 }
 
+
+void closeSocketConnection(int fd_skt)
+{
+  if(close(fd_skt) < 0){
+    termina("Errore chiusura socket");
+  }
+}
+
 /**************************** Presi da xerrori ****************************/
 void termina(const char *messaggio) {
   if(errno==0)  fprintf(stderr,"== %d == %s\n",getpid(), messaggio);
