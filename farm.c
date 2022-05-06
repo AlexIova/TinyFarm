@@ -29,7 +29,9 @@ void *sommaWorker(void *args)
     somma = 0, i = 0;
     int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria
     if(f == -1) termina("Errore apertura file thread");
-    while(true){
+    while(true)
+    {
+      /* Calcolo somma */
       e = read(f, &num, sizeof(long));
       fprintf(stderr, "valore di e: %d\n",e);
       fprintf(stderr, "valore di num: %ld\n",num);
@@ -37,6 +39,15 @@ void *sommaWorker(void *args)
       fprintf(stderr, "fammi uscire\n");
       somma += (i*num);
       i++;
+
+      /* Invio socket */
+      // Fase di handshake
+      /*
+      int byteNome = strlen(nomeFile)+1;
+      e = socketWritenInt(, byteNome);
+      */
+
+
     }
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
@@ -91,21 +102,7 @@ int main(int argc, char *argv[])
 
 
   /* Creazione socket connessione */
-  int fd_skt = 0;
-  struct sockaddr_in serv_addr;
-  
-  // Inizializzazione socket TCP
-  if ((fd_skt = socket(AF_INET, SOCK_STREAM, 6)) < 0) // 6 è il numero di protocollo per TCP
-    termina("Errore creazione socket");
-
-  // Assegnamento indirizzo 
-  serv_addr.sin_family = AF_INET;   // Famiglia protoccoli ipv4
-  serv_addr.sin_port = htons(PORT); // Numero porta scritto in network byte order (big-endian)
-  serv_addr.sin_addr.s_addr = inet_addr(HOST);  // Indirizzo ipv4
-
-  // apertura connessione
-  if (connect(fd_skt, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
-    termina("Errore apertura connessione");
+  int fd_skt = beginSocketConnection(HOST, PORT);
 
   /* Inizializzazioni thread Worker*/
   int cindex = 0;   // Indice consumatore (worker) per buffer
