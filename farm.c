@@ -13,6 +13,7 @@ void *sommaWorker(void *args)
   char *nomeFile;
   long somma, num;
   int i, e;
+  int fd_skt = 0;
   while(true)
   {
     xsem_wait(a->sem_dati_presenti, QUI);
@@ -24,11 +25,15 @@ void *sommaWorker(void *args)
 
     fprintf(stderr, "Nomefile: %s\n", nomeFile);
 
-    if(strcmp(nomeFile, "$$$") == 0) break;
+    if(strcmp(nomeFile, "$$$") == 0) break;   // Segnale terminazione
 
     somma = 0, i = 0;
     int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria
     if(f == -1) termina("Errore apertura file thread");
+
+    /* Creazione socket connessione */
+      fd_skt = beginSocketConnection(HOST, PORT);
+    
     while(true)
     {
       /* Calcolo somma */
@@ -41,6 +46,7 @@ void *sommaWorker(void *args)
       i++;
 
       /* Invio socket */
+      
       // Fase di handshake
       /*
       int byteNome = strlen(nomeFile)+1;
@@ -53,6 +59,10 @@ void *sommaWorker(void *args)
     if(e != 0) termina("Errore chiusura fd");
     fprintf(stderr,"Somma: %ld\n", somma);
   }
+
+
+  if(fd_skt != 0 && close(fd_skt)<0)   // Chiusura socket solo per thread che lo hanno aperta
+    termina("Errore chiusura socket");
   pthread_exit(NULL);
 }
 
@@ -99,10 +109,6 @@ int main(int argc, char *argv[])
     }
   }
 	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
-
-
-  /* Creazione socket connessione */
-  int fd_skt = beginSocketConnection(HOST, PORT);
 
   /* Inizializzazioni thread Worker*/
   int cindex = 0;   // Indice consumatore (worker) per buffer
@@ -154,8 +160,6 @@ int main(int argc, char *argv[])
   }
 
   /* Chiusure e deallocazioni */
-  if(close(fd_skt)<0)   // Chiusura socket
-    termina("Errore chiusura socket");
 
   free(buffer);
 	return 0;
