@@ -42,6 +42,8 @@ ssize_t readn(int fd, void *ptr, size_t n);
 ssize_t writen(int fd, void *ptr, size_t n);
 ssize_t socketWritenLong(int fd_skt, long n);
 ssize_t socketReadnLong(int fd_skt, long n);
+ssize_t socketWritenInt(int fd_skt, int n);
+ssize_t socketReadnInt(int fd_skt, int n);
 
 
 /******* Presi da xerrori *******/
