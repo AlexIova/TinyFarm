@@ -74,6 +74,25 @@ ssize_t socketReadnInt(int fd_skt, int n)
     return e;
 }
 
+ssize_t socketWritenString(int fd_skt, char *s)
+{
+    char tmp[256];  // si assume che i nomi non siano > 255
+    strcpy(tmp, s);
+    ssize_t e = writen(fd_skt, &tmp, strlen(s)+1);
+    if(e != strlen(s)+1) termina ("Errore socketWritenString");
+    return e;
+}
+
+ssize_t socketReadnString(int fd_skt, char *s)
+{
+    char tmp[256];  // si assume che i nomi non siano > 255
+    strcpy(tmp, s);
+    ssize_t e = readn(fd_skt, tmp, strlen(s)+1);
+    if(e != strlen(s)+1) termina ("Errore socketWritenString");
+    return e;
+}
+
+
 int beginSocketConnection(char* host, int port)
 {
   int fd_skt = 0;

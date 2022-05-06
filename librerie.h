@@ -44,6 +44,8 @@ ssize_t socketWritenLong(int fd_skt, long n);
 ssize_t socketReadnLong(int fd_skt, long n);
 ssize_t socketWritenInt(int fd_skt, int n);
 ssize_t socketReadnInt(int fd_skt, int n);
+ssize_t socketWritenString(int fd_skt, char *s);
+ssize_t socketReadnString(int fd_skt, char *s);
 int beginSocketConnection(char* host, int port);
 
 
