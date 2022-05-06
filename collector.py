@@ -25,14 +25,17 @@ def recv_all(conn,n):
 def stampaSomme(conn, addr):
     with conn:
         # Dati ricevuti contengono handshake(int) + stringa + somma(long)
-        data = recv_all(conn, 11)
-        print(f"LUNGHEZZA DATI {len(data)}")
-        assert len(data) > 0
-        byteNome = struct.unpack("!i", data[:4])[0]     #"!i" network byte int 
-        print(f"Stringa passata lunga {byteNome}")
-        # nomeFile = (struct.unpack("",data[4:])[0]).decode("utf-8")
-        nomeFile = data[4:].decode("utf-8")
-        print(f"Stringa passata {nomeFile}")
+        data = recv_all(conn, 4)
+        assert len(data) == 4   # Deve essere un intero
+        byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int 
+        # print(f"Stringa passata lunga {byteNome}")
+        data = recv_all(conn, byteNome + 8)     # stringa + long
+        nomeFile = data[:byteNome].decode("utf-8")
+        # print(f"Stringa passata {nomeFile}")
+        # print(f"Grandezza DATA = {len(data)}")
+        # print(f"{data}")
+        somma = struct.unpack("!q", data[-8:])[0]
+        # print(f"Somma {somma}")
 
 
 

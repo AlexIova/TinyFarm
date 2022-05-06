@@ -48,11 +48,10 @@ void *sommaWorker(void *args)
     }
     
     /* Invio socket */
-    
-    // Fase di handshake
     int byteNome = strlen(nomeFile)+1;
-    e = socketWritenInt(fd_skt, byteNome);
+    e = socketWritenInt(fd_skt, byteNome);    // handshake
     e = socketWritenString(fd_skt, nomeFile);
+    e = socketWritenLong(fd_skt, somma);
 
 
     e = close(f);
