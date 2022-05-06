@@ -39,10 +39,7 @@ void *sommaWorker(void *args)
     {
       /* Calcolo somma */
       e = read(f, &num, sizeof(long));
-      //fprintf(stderr, "valore di e: %d\n",e);
-      //fprintf(stderr, "valore di num: %ld\n",num);
       if(e <= 0) break;
-      //fprintf(stderr, "fammi uscire\n");
       somma += (i*num);
       i++;
     }
@@ -52,7 +49,6 @@ void *sommaWorker(void *args)
     e = socketWritenInt(fd_skt, byteNome);    // handshake
     e = socketWritenString(fd_skt, nomeFile);
     e = socketWritenLong(fd_skt, somma);
-
 
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
@@ -129,6 +125,9 @@ int main(int argc, char *argv[])
   dw.cindex = &cindex;
   dw.qlen = qlen;
 
+  /* Apertura socket */
+  int fd_skt = beginSocketConnection(HOST, PORT);
+
   pthread_t w[nthread-1];
   for(int i = 0; i < nthread; i++){
     xpthread_create(&w[i], NULL, sommaWorker, &dw, QUI);
@@ -153,10 +152,15 @@ int main(int argc, char *argv[])
     xsem_post(&sem_dati_presenti, QUI);
   }
 
+
+
   /* join */
   for(int i = 0; i < nthread; i++){
       xpthread_join(w[i], NULL, QUI);
   }
+
+  shutdownServer(fd_skt);
+  closeSocketConnection(fd_skt);
 
   /* Chiusure e deallocazioni */
 

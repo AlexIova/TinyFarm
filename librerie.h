@@ -52,6 +52,7 @@ ssize_t socketWritenString(int fd_skt, char *s);
 ssize_t socketReadnString(int fd_skt, char *s);
 int beginSocketConnection(char* host, int port);
 void closeSocketConnection(int fd_skt);
+void shutdownServer(int fd_skt);
 
 
 /******* Presi da xerrori *******/

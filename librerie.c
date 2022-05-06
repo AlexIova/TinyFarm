@@ -142,6 +142,12 @@ void closeSocketConnection(int fd_skt)
   }
 }
 
+void shutdownServer(int fd_skt)
+{
+  int e = socketWritenInt(fd_skt, -1);
+  if(e <= 0) termina("Errore fatale");
+}
+
 /**************************** Presi da xerrori ****************************/
 void termina(const char *messaggio) {
   if(errno==0)  fprintf(stderr,"== %d == %s\n",getpid(), messaggio);
