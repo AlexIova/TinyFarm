@@ -74,6 +74,26 @@ ssize_t socketReadnInt(int fd_skt, int n)
     return e;
 }
 
+int beginSocketConnection(char* host, int port)
+{
+  int fd_skt = 0;
+  struct sockaddr_in serv_addr;
+
+  // Inizializzazione socket TCP
+  if ((fd_skt = socket(AF_INET, SOCK_STREAM, 6)) < 0) // 6 è il numero di protocollo per TCP
+    termina("Errore creazione socket");
+    
+  // Assegnamento indirizzo 
+  serv_addr.sin_family = AF_INET;   // Famiglia protoccoli ipv4
+  serv_addr.sin_port = htons(port); // Numero porta scritto in network byte order (big-endian)
+  serv_addr.sin_addr.s_addr = inet_addr(host);  // Indirizzo ipv4
+
+  // apertura connessione
+  if (connect(fd_skt, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
+    termina("Errore apertura connessione");
+
+  return fd_skt;
+}
 
 /**************************** Presi da xerrori ****************************/
 void termina(const char *messaggio) {

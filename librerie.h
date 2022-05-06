@@ -44,6 +44,7 @@ ssize_t socketWritenLong(int fd_skt, long n);
 ssize_t socketReadnLong(int fd_skt, long n);
 ssize_t socketWritenInt(int fd_skt, int n);
 ssize_t socketReadnInt(int fd_skt, int n);
+int beginSocketConnection(char* host, int port);
 
 
 /******* Presi da xerrori *******/
