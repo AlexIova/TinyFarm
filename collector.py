@@ -7,8 +7,29 @@ HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 
-def placeholder(n):
-    print(f"mi hanno passato il numero {n}")
+
+# Analogo readn
+def recv_all(conn,n):
+  chunks = b''
+  bytes_recd = 0
+  while bytes_recd < n:
+    chunk = conn.recv(min(n - bytes_recd, 1024))
+    if len(chunk) == 0:
+      raise RuntimeError("socket connection broken")
+    chunks += chunk
+    bytes_recd = bytes_recd + len(chunk)
+  return chunks
+
+
+
+def stampaSomme(conn, addr):
+    with conn:
+        data = recv_all(conn, 4)
+        assert len(data) == 4
+        print("Sto per mettere data: \n\n")
+        print(data)
+
+
 
 
 # Codice thread per gestione un client, sottoclasse di threading.Thread
@@ -19,7 +40,7 @@ class ClientThread(threading.Thread):
         self.addr = addr
     def run(self):
         print(f"Sono {self.ident}, gestisco {self.addr}")
-        placeholder(50)
+        stampaSomme(self.conn, self.addr)
         
 
 
@@ -33,7 +54,7 @@ def main():
                 print("In attesa di un client...")
                 conn, addr = s.accept()
                 print(f"Apparso un client\nconn: {conn}\taddr: {addr}")
-                t = threading.Thread(target=placeholder, args=(conn,addr))
+                t = threading.Thread(target=stampaSomme, args=(conn,addr))
                 t = ClientThread(conn,addr)
                 t.start()
         except KeyboardInterrupt:
@@ -41,4 +62,8 @@ def main():
     print('Va bene smetto...')
     s.shutdown(socket.SHUT_RDWR)
 
+
+# collector.py non prende argomenti
 main()
+
+

@@ -32,7 +32,7 @@ void *sommaWorker(void *args)
     if(f == -1) termina("Errore apertura file thread");
 
     /* Creazione socket connessione */
-      fd_skt = beginSocketConnection(HOST, PORT);
+    fd_skt = beginSocketConnection(HOST, PORT);
     
     while(true)
     {
@@ -48,10 +48,9 @@ void *sommaWorker(void *args)
       /* Invio socket */
       
       // Fase di handshake
-      /*
       int byteNome = strlen(nomeFile)+1;
-      e = socketWritenInt(, byteNome);
-      */
+      e = socketWritenInt(fd_skt, byteNome);
+      
 
 
     }
@@ -61,7 +60,7 @@ void *sommaWorker(void *args)
   }
 
 
-  if(fd_skt != 0 && close(fd_skt)<0)   // Chiusura socket solo per thread che lo hanno aperta
+  if(fd_skt != 0 && close(fd_skt)<0)   // Chiusura socket solo per thread che l'hanno aperta
     termina("Errore chiusura socket");
   pthread_exit(NULL);
 }
