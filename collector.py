@@ -22,38 +22,38 @@ def recv_all(conn,n):
 
 
 
-def stampaSomme(conn, addr):
+def stampaSomme(conn, addr, fine):
     with conn:
-        # Dati ricevuti contengono handshake(int) + stringa + somma(long)
         data = recv_all(conn, 4)
         assert len(data) == 4   # Deve essere un intero
         byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int 
-        # print(f"Stringa passata lunga {byteNome}")
+        print(f"byteNome: {byteNome}")
+        if byteNome == -1:
+            fine.set()
+            return
         data = recv_all(conn, byteNome + 8)     # stringa + long
         nomeFile = data[:byteNome].decode("utf-8")
-        # print(f"Stringa passata {nomeFile}")
-        # print(f"Grandezza DATA = {len(data)}")
-        # print(f"{data}")
         somma = struct.unpack("!q", data[-8:])[0]
-        # print(f"Somma {somma}")
         print(f"{somma}\t{nomeFile}")
 
 
 
 # Codice thread per gestione un client, sottoclasse di threading.Thread
 class ClientThread(threading.Thread):
-    def __init__(self, conn, addr):
+    def __init__(self, conn, addr, fine):
         threading.Thread.__init__(self)     # Inizializzazione superclasse
         self.conn = conn
         self.addr = addr
+        self.fine = fine
     def run(self):
         # print(f"Sono {self.ident}, gestisco {self.addr}")
-        stampaSomme(self.conn, self.addr)
+        stampaSomme(self.conn, self.addr, self.fine)
         
 
 
 def main():
     # Creazione server socket
+    fine = threading.Event()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # SOCK_STREAM == TCP
         try:  
             s.bind((HOST, PORT))
@@ -61,14 +61,16 @@ def main():
             while True:
                 # print("In attesa di un client...")
                 conn, addr = s.accept()
-                # print(f"Apparso un client\nconn: {conn}\taddr: {addr}")
-                t = threading.Thread(target=stampaSomme, args=(conn,addr))
-                t = ClientThread(conn,addr)
+                t = threading.Thread(target=stampaSomme, args=(conn,addr,fine))
+                t = ClientThread(conn,addr,fine)
                 t.start()
+                if fine.isSet():
+                    break 
         except KeyboardInterrupt:
             pass
     print('Va bene smetto...')
     s.shutdown(socket.SHUT_RDWR)
+    sock.close() # Dealloca la memoria per la socket
 
 
 # collector.py non prende argomenti
