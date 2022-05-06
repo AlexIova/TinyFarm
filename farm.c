@@ -20,6 +20,7 @@ void *sommaWorker(void *args)
     xpthread_mutex_lock(a->tmutex, QUI);
     nomeFile = a->buffer[*(a->cindex) % a->qlen];
     *(a->cindex) += 1;
+    assert(strlen(nomeFile) < 256);   // Nomi file al più 255
     xpthread_mutex_unlock(a->tmutex, QUI);
     xsem_post(a->sem_posti_liberi, QUI);
 
@@ -38,22 +39,22 @@ void *sommaWorker(void *args)
     {
       /* Calcolo somma */
       e = read(f, &num, sizeof(long));
-      fprintf(stderr, "valore di e: %d\n",e);
-      fprintf(stderr, "valore di num: %ld\n",num);
+      //fprintf(stderr, "valore di e: %d\n",e);
+      //fprintf(stderr, "valore di num: %ld\n",num);
       if(e <= 0) break;
-      fprintf(stderr, "fammi uscire\n");
+      //fprintf(stderr, "fammi uscire\n");
       somma += (i*num);
       i++;
-
-      /* Invio socket */
-      
-      // Fase di handshake
-      int byteNome = strlen(nomeFile)+1;
-      e = socketWritenInt(fd_skt, byteNome);
-      
-
-
     }
+    
+    /* Invio socket */
+    
+    // Fase di handshake
+    int byteNome = strlen(nomeFile)+1;
+    e = socketWritenInt(fd_skt, byteNome);
+    e = socketWritenString(fd_skt, nomeFile);
+
+
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
     fprintf(stderr,"Somma: %ld\n", somma);
