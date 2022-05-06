@@ -60,8 +60,8 @@ void *sommaWorker(void *args)
   }
 
 
-  if(fd_skt != 0 && close(fd_skt)<0)   // Chiusura socket solo per thread che l'hanno aperta
-    termina("Errore chiusura socket");
+  if(fd_skt != 0) // Chiusura socket solo per thread che l'hanno aperta
+    closeSocketConnection(fd_skt);
   pthread_exit(NULL);
 }
 
