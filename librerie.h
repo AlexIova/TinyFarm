@@ -18,6 +18,8 @@
 /* socket*/
 #include <arpa/inet.h>
 #include <sys/socket.h>
+/* Per invertire ordine byte */
+#include <byteswap.h>
 
 /* Struct thread Worker */
 typedef struct {
@@ -38,6 +40,8 @@ typedef struct {
 } dataSig;
 
 void chiudi(const char *messaggio);
+bool isBigEndian();
+uint64_t hRltonl(uint64_t hostReallyLong);
 ssize_t readn(int fd, void *ptr, size_t n);
 ssize_t writen(int fd, void *ptr, size_t n);
 ssize_t socketWritenLong(int fd_skt, long n);

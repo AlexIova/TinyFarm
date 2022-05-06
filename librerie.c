@@ -7,6 +7,24 @@ void chiudi(const char *messaggio)
     exit(1);
 }
 
+bool isBigEndian()
+{
+  int parola = 1;   // 0x00000001
+  char *b = (char *)&parola;  // dereferenzio e referenzio di nuovo. il tipo char mi serve per avere un solo byte
+  if (b[0] == 1)    // se BE allora 0x00 se LE allora 0x01
+    return false;
+  else
+    return true;
+}
+
+uint64_t hRltonl(uint64_t hostReallyLong)
+{
+
+  if(isBigEndian()) return hostReallyLong;    // già in big endian
+  uint64_t n = hostReallyLong;
+  return bswap_64(n);   // libreria <byteswap.h>
+}
+
 /* Funzioni per lettura/scrittura continuativa */
 ssize_t readn(int fd, void *ptr, size_t n)
 {  
@@ -44,15 +62,19 @@ ssize_t writen(int fd, void *ptr, size_t n)
 
 ssize_t socketWritenLong(int fd_skt, long n)
 {
-    long tmp = htonl(n);
+    //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
+    long tmp = hRltonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
+    printf("Ho mandato: %ld\n", n);
+    printf("byte: %ld\n", tmp);
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
     return e;
 }
 
 ssize_t socketReadnLong(int fd_skt, long n)
 {
-    long tmp = htonl(n);
+    //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
+    long tmp = hRltonl(n);
     ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
     return e;
