@@ -7,14 +7,6 @@ HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 
-def eccChiudiHandler(arg):
-    print("FUNZIONA")
-    
-
-class eccezioneChiudi(Exception):
-    pass
-
-
 # Analogo readn
 def recv_all(conn,n):
   chunks = b''
@@ -37,7 +29,8 @@ def stampaSomme(conn, addr, fine):
         print(f"byteNome: {byteNome}")
         if byteNome == -1:
             fine.set()
-            raise eccezioneChiudi
+            s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)    
+            s.connect((HOST,PORT))  # Connessione locale per non far bloccare main sull'accept. Francamente non avevo in mente altre idee
             return
         data = recv_all(conn, byteNome + 8)     # stringa + long
         nomeFile = data[:byteNome].decode("utf-8")
@@ -62,7 +55,6 @@ class ClientThread(threading.Thread):
 def main():
     # Creazione server socket
     fine = threading.Event()
-    threading.excepthook = eccChiudiHandler
     # print(threading.excepthook)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # SOCK_STREAM == TCP
         # print(f"TIMEOUT: {s.getdefaulttimeout()}")
@@ -72,6 +64,9 @@ def main():
             s.listen()
             while True:
                 print("In attesa di un client...")
+                if fine.isSet():
+                    s.shutdown(socket.SHUT_RDWR)
+                    break
                 conn, addr = s.accept()
                 t = threading.Thread(target=stampaSomme, args=(conn,addr,fine))
                 t = ClientThread(conn,addr,fine)
