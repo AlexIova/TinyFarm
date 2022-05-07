@@ -1,13 +1,9 @@
 #! /usr/bin/env python3
-# server che fornisce l'elenco dei primi in un dato intervallo 
-# gestisce più clienti contemporaneamente usando i thread
-import sys, struct, socket, threading
-# modulo che contiene già un server bastao sui socket
-import socketserver
 
-# host e porta di default
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+import sys, struct, socket, threading, socketserver
+
+HOST = "127.0.0.1"
+PORT = 65432 
  
 class stampaSomme(socketserver.StreamRequestHandler):
   def handle(self):
@@ -17,6 +13,7 @@ class stampaSomme(socketserver.StreamRequestHandler):
     print(f"byteNome: {byteNome}")
     if byteNome == -1:
         print("ARRIVATO -1")
+        raise KeyboardInterrupt
         return
     data = self.rfile.read(byteNome+8)      # stringa + long
     nomeFile = data[:byteNome].decode("utf-8")
