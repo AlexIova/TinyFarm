@@ -25,7 +25,7 @@ def stampaSomme(conn, addr, fine):
     with conn:
         data = recv_all(conn, 4)
         assert len(data) == 4   # Deve essere un intero
-        byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int 
+        byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int | grandezza nome
         print(f"byteNome: {byteNome}")
         if byteNome == -1:
             fine.set()
@@ -34,9 +34,9 @@ def stampaSomme(conn, addr, fine):
             return
         data = recv_all(conn, byteNome + 8)     # stringa + long
         nomeFile = data[:byteNome].decode("utf-8")
-        somma = struct.unpack("!q", data[-8:])[0]
+        somma = struct.unpack("!q", data[-8:])[0]   # "!q" network byte long long
         print(f"{somma}\t{nomeFile}")
-        conn.sendall(struct.pack("!i",1))
+        conn.sendall(struct.pack("!i",1))   # invio ACK
 
 
 # Codice thread per gestione un client, sottoclasse di threading.Thread
