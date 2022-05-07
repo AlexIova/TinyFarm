@@ -6,7 +6,7 @@
 
 
 
-
+/* Funzione thread worker */
 void *sommaWorker(void *args)
 {
   dataWork *a = (dataWork *) args;
@@ -49,6 +49,8 @@ void *sommaWorker(void *args)
     e = socketWritenInt(fd_skt, byteNome);    // handshake
     e = socketWritenString(fd_skt, nomeFile);
     e = socketWritenLong(fd_skt, somma);
+
+    e = socketReadnInt(fd_skt, sizeof(int));  // Aspettta ACK del server
 
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
@@ -125,7 +127,7 @@ int main(int argc, char *argv[])
   dw.cindex = &cindex;
   dw.qlen = qlen;
 
-  /* Apertura socket */
+  /* Apertura socket MasterWorker*/
   int fd_skt = beginSocketConnection(HOST, PORT);
 
   pthread_t w[nthread-1];
@@ -135,6 +137,7 @@ int main(int argc, char *argv[])
 
   /* inserimento in buffer */
   for(int i = optind; i<argc; i++){
+    usleep(delay);
     xsem_wait(&sem_posti_liberi, QUI);
     xpthread_mutex_lock(&tmutex, QUI);
     buffer[pindex++ % qlen] = argv[i];
@@ -159,11 +162,10 @@ int main(int argc, char *argv[])
       xpthread_join(w[i], NULL, QUI);
   }
 
-  shutdownServer(fd_skt);
-  closeSocketConnection(fd_skt);
 
   /* Chiusure e deallocazioni */
-
+  shutdownServer(fd_skt);
+  closeSocketConnection(fd_skt);
   free(buffer);
 	return 0;
 }
