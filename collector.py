@@ -3,8 +3,8 @@
 # NOTA: Per identazione vengono usati 4 spazi
 import sys, struct, socket, threading
 
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+HOST = "127.0.0.1"
+PORT = 65432
 
 
 # Analogo readn
@@ -47,26 +47,21 @@ class ClientThread(threading.Thread):
         self.addr = addr
         self.fine = fine
     def run(self):
-        # print(f"Sono {self.ident}, gestisco {self.addr}")
         stampaSomme(self.conn, self.addr, self.fine)
         
 
 
 def main():
+    fine = threading.Event()    # Stato evento interno thread
     # Creazione server socket
-    fine = threading.Event()
-    # print(threading.excepthook)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # SOCK_STREAM == TCP
         # print(f"TIMEOUT: {s.getdefaulttimeout()}")
         try:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((HOST, PORT))
             s.listen()
-            while True:
+            while not fine.isSet():
                 print("In attesa di un client...")
-                if fine.isSet():
-                    s.shutdown(socket.SHUT_RDWR)
-                    break
                 conn, addr = s.accept()
                 t = threading.Thread(target=stampaSomme, args=(conn,addr,fine))
                 t = ClientThread(conn,addr,fine)
@@ -75,7 +70,6 @@ def main():
             pass
     print('Va bene smetto...')
     s.shutdown(socket.SHUT_RDWR)
-    # sock.close() già fatto dalla with
 
 
 # collector.py non prende argomenti
