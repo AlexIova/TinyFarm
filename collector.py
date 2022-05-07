@@ -7,6 +7,13 @@ HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 
+def eccChiudiHandler(arg):
+    print("FUNZIONA")
+    
+
+class eccezioneChiudi(Exception):
+    pass
+
 
 # Analogo readn
 def recv_all(conn,n):
@@ -30,15 +37,13 @@ def stampaSomme(conn, addr, fine):
         print(f"byteNome: {byteNome}")
         if byteNome == -1:
             fine.set()
+            raise eccezioneChiudi
             return
         data = recv_all(conn, byteNome + 8)     # stringa + long
         nomeFile = data[:byteNome].decode("utf-8")
         somma = struct.unpack("!q", data[-8:])[0]
         print(f"{somma}\t{nomeFile}")
         conn.sendall(struct.pack("!i",1))
-
-
-
 
 
 # Codice thread per gestione un client, sottoclasse di threading.Thread
@@ -57,13 +62,16 @@ class ClientThread(threading.Thread):
 def main():
     # Creazione server socket
     fine = threading.Event()
+    threading.excepthook = eccChiudiHandler
+    # print(threading.excepthook)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # SOCK_STREAM == TCP
+        # print(f"TIMEOUT: {s.getdefaulttimeout()}")
         try:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((HOST, PORT))
             s.listen()
             while True:
-                # print("In attesa di un client...")
+                print("In attesa di un client...")
                 conn, addr = s.accept()
                 t = threading.Thread(target=stampaSomme, args=(conn,addr,fine))
                 t = ClientThread(conn,addr,fine)
@@ -72,7 +80,7 @@ def main():
             pass
     print('Va bene smetto...')
     s.shutdown(socket.SHUT_RDWR)
-    sock.close() # Dealloca la memoria per la socket
+    # sock.close() già fatto dalla with
 
 
 # collector.py non prende argomenti
