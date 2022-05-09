@@ -68,8 +68,8 @@ def main():
                 t.start()
         except KeyboardInterrupt:
             pass
-    print('Va bene smetto...')
-    s.shutdown(socket.SHUT_RDWR)
+        print('Va bene smetto...')
+        s.shutdown(socket.SHUT_RDWR)
 
 
 # collector.py non prende argomenti
