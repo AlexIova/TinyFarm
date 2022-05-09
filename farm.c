@@ -8,11 +8,10 @@
 /* handler per SIGINT */
 void gestore(int s)
 {
-  printf("Ciao\n");
+  printf("\nCiao\n");
+  sigBool(1);   // Dico a main che dovrà smettere, vedasi libreria
   return;
 }
-
-
 
 
 /* Funzione thread worker */
@@ -71,8 +70,6 @@ void *sommaWorker(void *args)
     closeSocketConnection(fd_skt);
   pthread_exit(NULL);
 }
-
-
 
 
 
@@ -154,8 +151,10 @@ int main(int argc, char *argv[])
   /* inserimento in buffer */
   for(int i = optind; i<argc; i++){
     usleep(delay*1000);     // usleep lavora in microsecondi non millisecondi
+    if(sigBool(0)) break;
     xsem_wait(&sem_posti_liberi, QUI);
     xpthread_mutex_lock(&tmutex, QUI);
+    printf("Ho inserito!");
     buffer[pindex++ % qlen] = argv[i];
     xpthread_mutex_unlock(&tmutex, QUI);
     xsem_post(&sem_dati_presenti, QUI);

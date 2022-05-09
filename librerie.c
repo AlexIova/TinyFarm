@@ -166,7 +166,14 @@ void xtermina(const char *messaggio, int linea, char *file) {
   exit(1);
 }
 
-
+// modo per comunicare handler e main 
+bool sigBool(int set)
+{
+  static int a = 0;
+  if (set > 0) a++;
+  if(a > 0) return true;  // E' stato settato almeno una volta da un handler
+  return false;   // Non è mai stato settato da nessuno (da handler)
+}
 
 // ---------- operazioni su FILE *
 FILE *xfopen(const char *path, const char *mode, int linea, char *file) {
