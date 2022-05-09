@@ -5,6 +5,15 @@
 #define PORT 65432        // porta casuale
 
 
+/* handler per SIGINT */
+void gestore(int s)
+{
+  printf("Ciao\n");
+  return;
+}
+
+
+
 
 /* Funzione thread worker */
 void *sommaWorker(void *args)
@@ -107,6 +116,13 @@ int main(int argc, char *argv[])
   }
 	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
 
+  /* definizione signal handler */
+  struct sigaction sa;
+  sigaction(SIGINT, NULL, &sa);
+  sa.sa_handler = gestore;
+  sigaction(SIGINT, &sa, NULL);
+
+
   /* Inizializzazioni thread Worker*/
   int cindex = 0;   // Indice consumatore (worker) per buffer
   int pindex = 0;   // Indice produttore (master) per buffer
@@ -137,7 +153,7 @@ int main(int argc, char *argv[])
 
   /* inserimento in buffer */
   for(int i = optind; i<argc; i++){
-    usleep(delay);
+    usleep(delay*1000);     // usleep lavora in microsecondi non millisecondi
     xsem_wait(&sem_posti_liberi, QUI);
     xpthread_mutex_lock(&tmutex, QUI);
     buffer[pindex++ % qlen] = argv[i];
