@@ -66,7 +66,6 @@ void socketWritenLong(int fd_skt, long n)
     long tmp = hRltonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
-    return e;
 }
 
 void socketReadnLong(int fd_skt, long n)
@@ -75,7 +74,6 @@ void socketReadnLong(int fd_skt, long n)
     long tmp = hRltonl(n);
     ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
-    return e;
 }
 
 void socketWritenInt(int fd_skt, int n)
@@ -83,7 +81,6 @@ void socketWritenInt(int fd_skt, int n)
     int tmp = htonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
     if(e != sizeof(int)) termina ("Errore socketWritenInt");
-    return e;
 }
 
 void socketReadnInt(int fd_skt, int n)
@@ -91,7 +88,6 @@ void socketReadnInt(int fd_skt, int n)
     int tmp = htonl(n);
     ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
     if(e != sizeof(int)) termina ("Errore socketWritenInt");
-    return e;
 }
 
 void socketWritenString(int fd_skt, char *s)
@@ -100,7 +96,6 @@ void socketWritenString(int fd_skt, char *s)
     strcpy(tmp, s);
     ssize_t e = writen(fd_skt, &tmp, strlen(s)+1);
     if(e != strlen(s)+1) termina ("Errore socketWritenString");
-    return e;
 }
 
 void socketReadnString(int fd_skt, char *s)
@@ -109,7 +104,6 @@ void socketReadnString(int fd_skt, char *s)
     strcpy(tmp, s);
     ssize_t e = readn(fd_skt, tmp, strlen(s)+1);
     if(e != strlen(s)+1) termina ("Errore socketWritenString");
-    return e;
 }
 
 
