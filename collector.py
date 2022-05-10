@@ -22,21 +22,24 @@ def recv_all(conn,n):
 
 
 def stampaSomme(conn, addr, fine):
-    with conn:
-        data = recv_all(conn, 4)
-        assert len(data) == 4   # Deve essere un intero
-        byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int | grandezza nome
-        # print(f"byteNome: {byteNome}")
-        if byteNome == -1:
-            fine.set()
-            s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)    
-            s.connect((HOST,PORT))  # Connessione locale per non far bloccare main sull'accept. Francamente non avevo in mente altre idee
-            return
-        data = recv_all(conn, byteNome + 8)     # stringa + long
-        nomeFile = data[:byteNome].decode("utf-8")
-        somma = struct.unpack("!q", data[-8:])[0]   # "!q" network byte long long
-        print(f"{somma}\t{nomeFile}")
-        conn.sendall(struct.pack("!i",1))   # invio ACK
+    while True:
+        try:
+            data = recv_all(conn, 4)
+            assert len(data) == 4   # Deve essere un intero
+            byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int | grandezza nome
+            # print(f"byteNome: {byteNome}")
+            if byteNome == -1:
+                fine.set()
+                s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)    
+                s.connect((HOST,PORT))  # Connessione locale per non far bloccare main sull'accept. Francamente non avevo in mente altre idee
+                return
+            data = recv_all(conn, byteNome + 8)     # stringa + long
+            nomeFile = data[:byteNome].decode("utf-8")
+            somma = struct.unpack("!q", data[-8:])[0]   # "!q" network byte long long
+            print(f"{somma}\t{nomeFile}")
+            conn.sendall(struct.pack("!i",1))   # invio ACK
+        except RuntimeError:    # La connessione con il thread client si è chiusa
+            break
 
 
 # Codice thread per gestione un client, sottoclasse di threading.Thread
