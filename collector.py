@@ -36,7 +36,7 @@ def stampaSomme(conn, addr, fine):
             data = recv_all(conn, byteNome + 8)     # stringa + long
             nomeFile = data[:byteNome].decode("utf-8")
             somma = struct.unpack("!q", data[-8:])[0]   # "!q" network byte long long
-            print(f"{somma}\t{nomeFile}")
+            print(f"{somma}\t\t{nomeFile}")
             conn.sendall(struct.pack("!i",1))   # invio ACK
         except RuntimeError:    # La connessione con il thread client si è chiusa
             break

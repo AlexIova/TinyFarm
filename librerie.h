@@ -34,10 +34,6 @@ typedef struct {
 
 } dataWork;
 
-/* Struct thread Segnali */
-typedef struct {
-    ;
-} dataSig;
 
 void chiudi(const char *messaggio);
 bool isBigEndian();
@@ -66,7 +62,6 @@ FILE *xfopen(const char *path, const char *mode, int linea, char *file);
 
 // operazioni su file descriptors
 void xclose(int fd, int linea, char *file);
-
 
 // semafori POSIX
 sem_t *xsem_open(const char *name, int oflag, mode_t mode, unsigned int value, int linea, char *file);
