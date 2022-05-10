@@ -148,6 +148,17 @@ void shutdownServer(int fd_skt)
   if(e <= 0) termina("Errore fatale");
 }
 
+// modo per comunicare handler e main 
+bool sigBool(int set)
+{
+  static int a = 0;
+  if (set > 0) a++;
+  if(a > 0) return true;  // E' stato settato almeno una volta da un handler
+  return false;   // Non è mai stato settato da nessuno (da handler)
+}
+
+
+
 /**************************** Presi da xerrori ****************************/
 void termina(const char *messaggio) {
   if(errno==0)  fprintf(stderr,"== %d == %s\n",getpid(), messaggio);
@@ -164,15 +175,6 @@ void xtermina(const char *messaggio, int linea, char *file) {
   fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
 
   exit(1);
-}
-
-// modo per comunicare handler e main 
-bool sigBool(int set)
-{
-  static int a = 0;
-  if (set > 0) a++;
-  if(a > 0) return true;  // E' stato settato almeno una volta da un handler
-  return false;   // Non è mai stato settato da nessuno (da handler)
 }
 
 // ---------- operazioni su FILE *
@@ -195,97 +197,6 @@ void xclose(int fd, int linea, char *file) {
     exit(1);
   }
   return;
-}
-
-
-// -------------- operazioni su processi
-pid_t xfork(int linea, char *file)
-{
-  pid_t p = fork();
-  if(p<0) {
-    perror("Errore fork");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return p;
-}
-
-pid_t xwait(int *status, int linea, char *file)
-{
-  pid_t p = wait(status);
-  if(p<0) {
-    perror("Errore wait");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return p;
-}
-
-
-int xpipe(int pipefd[2], int linea, char *file) {
-  int e = pipe(pipefd);
-  if(e!=0) {
-    perror("Errore creazione pipe"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;
-}
-
-// ---------------- memoria condivisa POSIX
-int xshm_open(const char *name, int oflag, mode_t mode, int linea, char *file)
-{
-  int e = shm_open(name, oflag, mode);
-  if(e== -1) {
-    perror("Errore shm_open"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;  
-}
-
-int xshm_unlink(const char *name, int linea, char *file)
-{
-  int e = shm_unlink(name);
-  if(e== -1) {
-    perror("Errore shm_unlink"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;  
-}
-
-int xftruncate(int fd, off_t length, int linea, char *file)
-{
-  int e = ftruncate(fd,length);
-  if(e== -1) {
-    perror("Errore ftruncate"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;  
-}
-
-void *simple_mmap(size_t length, int fd, int linea, char *file)
-{
-  void *a =  mmap(NULL, length ,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-  if(a == (void *) -1) {
-    perror("Errore mmap"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return a;
-}
-
-int xmunmap(void *addr, size_t length, int linea, char *file)
-{
-  int e = munmap(addr, length);
-  if(e== -1) {  
-    perror("Errore munmap"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;
 }
 
 
@@ -433,58 +344,6 @@ int xpthread_mutex_unlock(pthread_mutex_t *mutex, int linea, char *file) {
   int e = pthread_mutex_unlock(mutex);
   if (e!=0) {
     xperror(e, "Errore pthread_mutex_unlock");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    pthread_exit(NULL);
-  }
-  return e;
-}
-
-
-// condition variables
-int xpthread_cond_init(pthread_cond_t *restrict cond, const pthread_condattr_t *restrict attr, int linea, char *file) {
-  int e = pthread_cond_init(cond,attr);
-  if (e!=0) {
-    xperror(e, "Errore pthread_cond_init");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    pthread_exit(NULL);
-  }
-  return e;
-}
-
-int xpthread_cond_destroy(pthread_cond_t *cond, int linea, char *file) {
-  int e = pthread_cond_destroy(cond);
-  if (e!=0) {
-    xperror(e, "Errore pthread_cond_destroy");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    pthread_exit(NULL);
-  }
-  return e;
-}
-
-int xpthread_cond_wait(pthread_cond_t *restrict cond, pthread_mutex_t *restrict mutex, int linea, char *file) {
-  int e = pthread_cond_wait(cond,mutex);
-  if (e!=0) {
-    xperror(e, "Errore pthread_cond_wait");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    pthread_exit(NULL);
-  }
-  return e;
-}
-
-int xpthread_cond_signal(pthread_cond_t *cond, int linea, char *file) {
-  int e = pthread_cond_signal(cond);
-  if (e!=0) {
-    xperror(e, "Errore pthread_cond_signal");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    pthread_exit(NULL);
-  }
-  return e;
-}
-
-int xpthread_cond_broadcast(pthread_cond_t *cond, int linea, char *file) {
-  int e = pthread_cond_broadcast(cond);
-  if (e!=0) {
-    xperror(e, "Errore pthread_cond_broadcast");
     fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
     pthread_exit(NULL);
   }
