@@ -54,6 +54,7 @@ int beginSocketConnection(char* host, int port);
 void closeSocketConnection(int fd_skt);
 void shutdownServer(int fd_skt);
 bool sigBool(int set);
+bool checkFileExists(char *nome);
 
 
 /******* Presi da xerrori *******/

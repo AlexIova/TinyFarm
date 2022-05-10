@@ -1,5 +1,6 @@
 #include "librerie.h"
 
+
 #define QUI __LINE__, __FILE__
 #define HOST "127.0.0.1"  // indirizzo loopback
 #define PORT 65432        // porta casuale
@@ -113,6 +114,21 @@ int main(int argc, char *argv[])
   }
 	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
 
+  if(optind == argc){
+    chiudi("Uso: \n  farm [file ...] [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
+  }
+
+  /* Controllo esistenza file */
+  for(int i = optind; i < argc; i++){
+    if(!checkFileExists(argv[i])){
+      fprintf(stderr, "Errore: %s non esiste\n", argv[i]);
+      exit(1);
+    }
+  }
+
+  /* Apertura socket MasterWorker*/
+  int fd_skt = beginSocketConnection(HOST, PORT);   // Se fallisce perché server non risponde non eseguo nemmeno il resto
+
   /* definizione signal handler */
   struct sigaction sa;
   sigaction(SIGINT, NULL, &sa);
@@ -140,9 +156,6 @@ int main(int argc, char *argv[])
   dw.cindex = &cindex;
   dw.qlen = qlen;
 
-  /* Apertura socket MasterWorker*/
-  int fd_skt = beginSocketConnection(HOST, PORT);
-
   pthread_t w[nthread-1];
   for(int i = 0; i < nthread; i++){
     xpthread_create(&w[i], NULL, sommaWorker, &dw, QUI);
@@ -154,7 +167,6 @@ int main(int argc, char *argv[])
     if(sigBool(0)) break;
     xsem_wait(&sem_posti_liberi, QUI);
     xpthread_mutex_lock(&tmutex, QUI);
-    printf("Ho inserito!");
     buffer[pindex++ % qlen] = argv[i];
     xpthread_mutex_unlock(&tmutex, QUI);
     xsem_post(&sem_dati_presenti, QUI);

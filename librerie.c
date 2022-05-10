@@ -157,9 +157,19 @@ bool sigBool(int set)
   return false;   // Non è mai stato settato da nessuno (da handler)
 }
 
+bool checkFileExists(char *nome)
+{
+  FILE *f = fopen(nome, "r");
+  if(f != NULL){
+    fclose(f);
+    return true;
+  }
+  return false;
+}
 
 
 /**************************** Presi da xerrori ****************************/
+
 void termina(const char *messaggio) {
   if(errno==0)  fprintf(stderr,"== %d == %s\n",getpid(), messaggio);
   else fprintf(stderr,"== %d == %s: %s\n",getpid(), messaggio,
