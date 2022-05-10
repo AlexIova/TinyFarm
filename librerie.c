@@ -60,7 +60,7 @@ ssize_t writen(int fd, void *ptr, size_t n)
    return(n - nleft); /* return >= 0 */
 }
 
-ssize_t socketWritenLong(int fd_skt, long n)
+void socketWritenLong(int fd_skt, long n)
 {
     //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
     long tmp = hRltonl(n);
@@ -69,7 +69,7 @@ ssize_t socketWritenLong(int fd_skt, long n)
     return e;
 }
 
-ssize_t socketReadnLong(int fd_skt, long n)
+void socketReadnLong(int fd_skt, long n)
 {
     //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
     long tmp = hRltonl(n);
@@ -78,7 +78,7 @@ ssize_t socketReadnLong(int fd_skt, long n)
     return e;
 }
 
-ssize_t socketWritenInt(int fd_skt, int n)
+void socketWritenInt(int fd_skt, int n)
 {
     int tmp = htonl(n);
     ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
@@ -86,7 +86,7 @@ ssize_t socketWritenInt(int fd_skt, int n)
     return e;
 }
 
-ssize_t socketReadnInt(int fd_skt, int n)
+void socketReadnInt(int fd_skt, int n)
 {
     int tmp = htonl(n);
     ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
@@ -94,7 +94,7 @@ ssize_t socketReadnInt(int fd_skt, int n)
     return e;
 }
 
-ssize_t socketWritenString(int fd_skt, char *s)
+void socketWritenString(int fd_skt, char *s)
 {
     char tmp[256];  // si assume che i nomi non siano > 255
     strcpy(tmp, s);
@@ -103,7 +103,7 @@ ssize_t socketWritenString(int fd_skt, char *s)
     return e;
 }
 
-ssize_t socketReadnString(int fd_skt, char *s)
+void socketReadnString(int fd_skt, char *s)
 {
     char tmp[256];  // si assume che i nomi non siano > 255
     strcpy(tmp, s);
@@ -144,8 +144,7 @@ void closeSocketConnection(int fd_skt)
 
 void shutdownServer(int fd_skt)
 {
-  int e = socketWritenInt(fd_skt, -1);
-  if(e <= 0) termina("Errore fatale");
+  socketWritenInt(fd_skt, -1);
 }
 
 // modo per comunicare handler e main 

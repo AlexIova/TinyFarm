@@ -26,7 +26,7 @@ def stampaSomme(conn, addr, fine):
         data = recv_all(conn, 4)
         assert len(data) == 4   # Deve essere un intero
         byteNome = struct.unpack("!i", data)[0]     #"!i" network byte int | grandezza nome
-        print(f"byteNome: {byteNome}")
+        # print(f"byteNome: {byteNome}")
         if byteNome == -1:
             fine.set()
             s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)    
@@ -60,15 +60,17 @@ def main():
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((HOST, PORT))
             s.listen()
-            while not fine.isSet():
-                print("In attesa di un client...")
+            while True:
+                # print("In attesa di un client...")
                 conn, addr = s.accept()
+                if fine.isSet():
+                    break
                 t = threading.Thread(target=stampaSomme, args=(conn,addr,fine))
                 t = ClientThread(conn,addr,fine)
                 t.start()
         except KeyboardInterrupt:
             pass
-        print("\nVa bene smetto...")
+        print("\nVa bene smetto...\n")
         s.shutdown(socket.SHUT_RDWR)
 
 

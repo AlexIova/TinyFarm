@@ -9,7 +9,6 @@
 /* handler per SIGINT */
 void gestore(int s)
 {
-  printf("\nCiao\n");
   sigBool(1);   // Dico a main che dovrà smettere, vedasi libreria
   return;
 }
@@ -33,7 +32,7 @@ void *sommaWorker(void *args)
     xpthread_mutex_unlock(a->tmutex, QUI);
     xsem_post(a->sem_posti_liberi, QUI);
 
-    fprintf(stderr, "Nomefile: %s\n", nomeFile);
+    // fprintf(stderr, "Nomefile: %s\n", nomeFile);
 
     if(strcmp(nomeFile, "$$$") == 0) break;   // Segnale terminazione
 
@@ -42,7 +41,7 @@ void *sommaWorker(void *args)
     if(f == -1) termina("Errore apertura file thread");
 
     /* Creazione socket connessione */
-    fd_skt = beginSocketConnection(HOST, PORT);
+    if (fd_skt == 0) fd_skt = beginSocketConnection(HOST, PORT);
     
     while(true)
     {
@@ -55,11 +54,11 @@ void *sommaWorker(void *args)
     
     /* Invio socket */
     int byteNome = strlen(nomeFile)+1;
-    e = socketWritenInt(fd_skt, byteNome);    // handshake
-    e = socketWritenString(fd_skt, nomeFile);
-    e = socketWritenLong(fd_skt, somma);
+    socketWritenInt(fd_skt, byteNome);    // handshake
+    socketWritenString(fd_skt, nomeFile);
+    socketWritenLong(fd_skt, somma);
 
-    e = socketReadnInt(fd_skt, sizeof(int));  // Aspettta ACK del server
+    socketReadnInt(fd_skt, sizeof(int));  // Aspettta ACK del server
 
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
@@ -112,16 +111,16 @@ int main(int argc, char *argv[])
         chiudi("Uso: \n  farm [file ...] [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
     }
   }
-	// fprintf(stderr,"Valore argomenti:\nnthread = %d\nqlen = %d\ndelay = %d\n\n", nthread, qlen, delay);
 
-  if(optind == argc){
+  /* Controllo immissione file */
+  if(optind >= argc){
     chiudi("Uso: \n  farm [file ...] [flags]\n\nFLAGS:\n -n: numero thread\n -q: lunghezza buffer prodcons\n -t: delay tra richieste\n");
   }
 
   /* Controllo esistenza file */
   for(int i = optind; i < argc; i++){
     if(!checkFileExists(argv[i])){
-      fprintf(stderr, "Errore: %s non esiste\n", argv[i]);
+      fprintf(stderr, "Errore: file \"%s\" non esiste\n", argv[i]);
       exit(1);
     }
   }
@@ -161,6 +160,7 @@ int main(int argc, char *argv[])
     xpthread_create(&w[i], NULL, sommaWorker, &dw, QUI);
   }
 
+
   /* inserimento in buffer */
   for(int i = optind; i<argc; i++){
     usleep(delay*1000);     // usleep lavora in microsecondi non millisecondi
@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
     xsem_post(&sem_dati_presenti, QUI);
   }
 
+
   /* terminazione */
   for(int i = 0; i < nthread; i++)
   {
@@ -181,7 +182,6 @@ int main(int argc, char *argv[])
     xpthread_mutex_unlock(&tmutex, QUI);
     xsem_post(&sem_dati_presenti, QUI);
   }
-
 
 
   /* join */
