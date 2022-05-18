@@ -3,7 +3,7 @@
 
 #define QUI __LINE__, __FILE__
 #define HOST "127.0.0.1"  // indirizzo loopback
-#define PORT 65432        // porta casuale
+#define PORT 65433        // porta casuale
 
 
 /* handler per SIGINT */
