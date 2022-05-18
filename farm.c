@@ -39,7 +39,7 @@ void *sommaWorker(void *args)
     if(f == -1) termina("Errore apertura file thread");
 
     /* Creazione socket connessione */
-    fd_skt = beginSocketConnection(HOST, PORT);
+    if(fd_skt == 0)  fd_skt = beginSocketConnection(HOST, PORT);
     
     while(true)
     {

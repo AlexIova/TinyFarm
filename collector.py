@@ -22,7 +22,7 @@ def recv_all(conn,n):
 
 
 def stampaSomme(conn, addr, fine):
-    while True:
+    while not fine.isSet():
         try:
             data = recv_all(conn, 4)
             assert len(data) == 4   # Deve essere un intero
