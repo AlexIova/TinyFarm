@@ -32,7 +32,7 @@ Il resto delle funzioni sono solo per evitare di rendere troppo confusionario il
 Per la scrittura del server si usa l'approccio di creare delle socket con la libreria `socket` utilizzando anche i thread di python della libreria `threading` per gestire in maniera automatica lo scheduling di più richieste contemporaneamente.
 L'unica parte degna di nota è la gestione del segnale di terminazione:
 nel caso in cui si riceva che la lunghezza del nome è `-1` allora si usano gli `Event Object` della libreria `threading`, dei flag interni in comune a tutti i thread, per comunicare facilmente al main l'imminente terminazione.
-Nel caso in cui uno dei thread riceva il segnale di terminazione setterà il flag. A questo punto server non effettuerà nuove connessioni.
+Nel caso in cui uno dei thread riceva il segnale di terminazione setterà il flag. A questo punto server non effettuerà nuove connessioni ed i thread che avevano connessioni non continueranno.
 Il thread che riceve il segnale di terminazione aprirà anche una connessione verso sè stesso, questo è per evitare il caso in cui il main si possa bloccare sulla `s.accept()`.
 
 È anche necessario inserire l'invio di un ACK altrimenti si può cadere nel caso in cui i *threadWorker* terminano inviando tutto e quindi *MasterWorker* vedendo i *threadWorker* finire manda il segnale di terminazione, può accadere però a questo punto che il segnale di terminazione del *MasterWorker* arrivi prima dei dati che erano stati mandati dai *threadWorker* facendo termiare *Collector* prematuramente.
