@@ -62,7 +62,7 @@ void *sommaWorker(void *args)
 
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
-    fprintf(stderr,"Somma: %ld\n", somma);
+    // fprintf(stderr,"Somma: %ld\n", somma);
   }
 
 

@@ -73,7 +73,7 @@ def main():
                 t.start()
         except KeyboardInterrupt:
             pass
-        print("\nVa bene smetto...\n")
+        # print("\nVa bene smetto...\n")
         s.shutdown(socket.SHUT_RDWR)
 
 
