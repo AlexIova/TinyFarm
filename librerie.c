@@ -25,6 +25,15 @@ uint64_t hRltonl(uint64_t hostReallyLong)
   return bswap_64(n);   // libreria <byteswap.h>
 }
 
+/*
+uint64_t ntohRl(uint64_t hostReallyLong)
+{
+  if(isBigEndian()) return hostReallyLong; // già in big endian
+  uint64_t n = hostReallyLong;
+  return bswap_64(n);
+}
+*/
+
 /* Funzioni per lettura/scrittura continuativa */
 ssize_t readn(int fd, void *ptr, size_t n)
 {  
@@ -62,17 +71,8 @@ ssize_t writen(int fd, void *ptr, size_t n)
 
 void socketWritenLong(int fd_skt, long n)
 {
-    //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
     long tmp = hRltonl(n);
-    ssize_t e = writen(fd_skt, &tmp, sizeof(tmp));
-    if(e != sizeof(long)) termina ("Errore socketWritenLong");
-}
-
-void socketReadnLong(int fd_skt, long n)
-{
-    //long tmp = htonl(n); htonl(3) trasforma solo interi a 32 bit
-    long tmp = hRltonl(n);
-    ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
+    ssize_t e = writen(fd_skt, &tmp, sizeof(long));
     if(e != sizeof(long)) termina ("Errore socketWritenLong");
 }
 
@@ -83,26 +83,18 @@ void socketWritenInt(int fd_skt, int n)
     if(e != sizeof(int)) termina ("Errore socketWritenInt");
 }
 
-void socketReadnInt(int fd_skt, int n)
+void socketReadnInt(int fd_skt, int* n)
 {
-    int tmp = htonl(n);
-    ssize_t e = readn(fd_skt, &tmp, sizeof(tmp));
-    if(e != sizeof(int)) termina ("Errore socketWritenInt");
+    int tmp;
+    ssize_t e = readn(fd_skt, &tmp, sizeof(int));
+    if(e != sizeof(int)) termina ("Errore socketReadnInt");
+    *n = ntohl(tmp);
+    
 }
 
 void socketWritenString(int fd_skt, char *s)
 {
-    char tmp[256];  // si assume che i nomi non siano > 255
-    strcpy(tmp, s);
-    ssize_t e = writen(fd_skt, &tmp, strlen(s)+1);
-    if(e != strlen(s)+1) termina ("Errore socketWritenString");
-}
-
-void socketReadnString(int fd_skt, char *s)
-{
-    char tmp[256];  // si assume che i nomi non siano > 255
-    strcpy(tmp, s);
-    ssize_t e = readn(fd_skt, tmp, strlen(s)+1);
+    ssize_t e = writen(fd_skt, s, strlen(s)+1);
     if(e != strlen(s)+1) termina ("Errore socketWritenString");
 }
 

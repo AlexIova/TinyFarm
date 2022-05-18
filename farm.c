@@ -32,12 +32,10 @@ void *sommaWorker(void *args)
     xpthread_mutex_unlock(a->tmutex, QUI);
     xsem_post(a->sem_posti_liberi, QUI);
 
-    // fprintf(stderr, "Nomefile: %s\n", nomeFile);
-
     if(strcmp(nomeFile, "$$$") == 0) break;   // Segnale terminazione
 
     somma = 0, i = 0;
-    int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria
+    int f = open(nomeFile, O_RDONLY);   // Non funziona con funzioni di libreria perché binario
     if(f == -1) termina("Errore apertura file thread");
 
     /* Creazione socket connessione */
@@ -58,11 +56,12 @@ void *sommaWorker(void *args)
     socketWritenString(fd_skt, nomeFile);
     socketWritenLong(fd_skt, somma);
 
-    socketReadnInt(fd_skt, sizeof(int));  // Aspettta ACK del server
+    int ack;
+    socketReadnInt(fd_skt, &ack);  // Aspettta ACK del server
+    
 
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
-    // fprintf(stderr,"Somma: %ld\n", somma);
   }
 
 
@@ -130,7 +129,6 @@ int main(int argc, char *argv[])
 
   /* definizione signal handler */
   struct sigaction sa;
-  sigaction(SIGINT, NULL, &sa);
   sa.sa_handler = gestore;
   sigaction(SIGINT, &sa, NULL);
 
