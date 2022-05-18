@@ -59,7 +59,6 @@ void *sommaWorker(void *args)
     int ack;
     socketReadnInt(fd_skt, &ack);  // Aspettta ACK del server
     
-
     e = close(f);
     if(e != 0) termina("Errore chiusura fd");
   }
