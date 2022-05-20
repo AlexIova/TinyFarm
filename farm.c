@@ -2,6 +2,7 @@
 
 
 #define QUI __LINE__, __FILE__
+
 #define HOST "127.0.0.1"  // indirizzo loopback
 #define PORT 65433        // porta casuale
 
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
 
   /* inserimento in buffer */
   for(int i = optind; i<argc; i++){
-    usleep(delay*1000);     // usleep lavora in microsecondi non millisecondi
+    usleep(delay*1000);     // usleep lavora in microsecondi mentre si vuole attesa in millisecondi
     if(sigBool(0)) break;
     xsem_wait(&sem_posti_liberi, QUI);
     xpthread_mutex_lock(&tmutex, QUI);

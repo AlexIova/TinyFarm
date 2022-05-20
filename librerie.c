@@ -25,15 +25,6 @@ uint64_t hRltonl(uint64_t hostReallyLong)
   return bswap_64(n);   // libreria <byteswap.h>
 }
 
-/*
-uint64_t ntohRl(uint64_t hostReallyLong)
-{
-  if(isBigEndian()) return hostReallyLong; // già in big endian
-  uint64_t n = hostReallyLong;
-  return bswap_64(n);
-}
-*/
-
 /* Funzioni per lettura/scrittura continuativa */
 ssize_t readn(int fd, void *ptr, size_t n)
 {  
@@ -99,6 +90,7 @@ void socketWritenString(int fd_skt, char *s)
 }
 
 
+/* Apre connessione, in caso di fallimento termina programma */
 int beginSocketConnection(char* host, int port)
 {
   int fd_skt = 0;
@@ -195,41 +187,7 @@ void xclose(int fd, int linea, char *file) {
 }
 
 
-// ---- semafori POSIX
-sem_t *xsem_open(const char *name, int oflag, mode_t mode, 
-              unsigned int value,  int linea, char *file) {
-  sem_t *s = sem_open(name,oflag,mode,value);
-  if (s==SEM_FAILED) {
-    perror("Errore sem_open");
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file); 
-    exit(1);
-  }
-  return s;
-}
-
-// chiude un NAMED semaphore 
-int xsem_close(sem_t *s, int linea, char *file)
-{
-  int e = sem_close(s);
-  if(e!=0) {
-    perror("Errore sem_close"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;  
-}
-
-int xsem_unlink(const char *name, int linea, char *file)
-{
-  int e = sem_unlink(name);
-  if(e!=0) {
-    perror("Errore sem_unlink"); 
-    fprintf(stderr,"== %d == Linea: %d, File: %s\n",getpid(),linea,file);
-    exit(1);
-  }
-  return e;  
-}
-
+// ---- semafori POSIX (solo unnamed)
 
 int xsem_init(sem_t *sem, int pshared, unsigned int value, int linea, char *file) {
   int e = sem_init(sem,pshared,value);
