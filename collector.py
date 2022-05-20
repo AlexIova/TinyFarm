@@ -71,8 +71,8 @@ def main():
         except KeyboardInterrupt:
             pass
         except OSError:     # Tipicamente perché l'indirizzo socket è già in uso
-            print(f"La porta [{PORT}] è già in uso")
-            return
+            print(f"La porta [{PORT}] è già in uso\n", file=sys.stderr)
+            sys.exit(1)
         # print("\nVa bene smetto...\n")
         s.shutdown(socket.SHUT_RDWR)
 
