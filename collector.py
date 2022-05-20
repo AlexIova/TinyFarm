@@ -57,7 +57,6 @@ def main():
     fine = threading.Event()    # Stato evento interno thread
     # Creazione server socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    # SOCK_STREAM == TCP
-        # print(f"TIMEOUT: {s.getdefaulttimeout()}")
         try:
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((HOST, PORT))
@@ -71,6 +70,9 @@ def main():
                 t.start()
         except KeyboardInterrupt:
             pass
+        except OSError:     # Tipicamente perché l'indirizzo socket è già in uso
+            print(f"La porta [{PORT}] è già in uso")
+            return
         # print("\nVa bene smetto...\n")
         s.shutdown(socket.SHUT_RDWR)
 
