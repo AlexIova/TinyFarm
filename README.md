@@ -36,4 +36,5 @@ Nel caso in cui uno dei thread riceva il segnale di terminazione setterà il fla
 Il thread che riceve il segnale di terminazione aprirà anche una connessione verso sè stesso, questo è per evitare il caso in cui il main si possa bloccare sulla `s.accept()`.
 
 È anche necessario inserire l'invio di un ACK altrimenti si può cadere nel caso in cui i *threadWorker* terminano inviando tutto, a questo punto *MasterWorker* vedendo i *threadWorker* finire manda il segnale di terminazione, può accadere però a questo punto che il segnale di terminazione del *MasterWorker* arrivi prima dei dati che erano stati mandati dai *threadWorker* facendo termiare *Collector* prematuramente.
+
 Nota: lo script è stato reso eseguibile mediante chmod.
