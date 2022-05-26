@@ -1,6 +1,7 @@
 # definizione del compilatore e dei flag di compilazione
 # che vengono usate dalle regole implicite
-# compilatore
+
+# compilatore usato
 CC=gcc
 # flag di compilazione
 CFLAGS=-g -Wall -O -std=c99
